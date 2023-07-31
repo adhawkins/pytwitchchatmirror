@@ -1,0 +1,7 @@
+twitchAPI
+requests
+#websockets
+aiohttp
+#cchardet
+#sqlalchemy
+#alembic
