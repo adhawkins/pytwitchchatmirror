@@ -27,6 +27,7 @@ class ChatSession:
         self.refreshToken = refreshToken
         self.channels = channels
         self.refreshCallback = refreshCallback
+        self.mirrorEnabled = False
 
     async def initialise(self):
         self.twitch = await Twitch(self.appID, self.appSecret)
@@ -43,6 +44,8 @@ class ChatSession:
         self.chat.register_event(ChatEvent.JOIN, self.onJoin)
         self.chat.register_event(ChatEvent.USER_LEFT, self.onLeave)
 
+        self.chat.register_command("mirror", self.onMirrorCommand)
+
         self.chat.start()
 
     async def shutdown(self):
@@ -53,12 +56,14 @@ class ChatSession:
         await self.chat.join_room(self.channels)
 
     async def onMessage(self, messageEvent):
-        for channel in self.channels:
-            if channel != messageEvent.room.name:
-                await self.chat.send_message(
-                    channel,
-                    f"{messageEvent.user.name} in {messageEvent.room.name}: {messageEvent.text}",
-                )
+        if self.mirrorEnabled and not messageEvent.text.startswith("!"):
+            if messageEvent.user.name != self.userName:
+                for channel in self.channels:
+                    if channel != messageEvent.room.name:
+                        await self.chat.send_message(
+                            channel,
+                            f"{messageEvent.user.name} in {messageEvent.room.name}: {messageEvent.text}",
+                        )
 
     async def onJoin(self, joinEvent):
         print(f"User: '{joinEvent.user_name}' joined '{joinEvent.room.name}")
@@ -74,3 +79,42 @@ class ChatSession:
         if self.refreshCallback:
             self.refreshCallback(self.userID, accessToken, refreshToken)
 
+    async def onMirrorCommand(self, commandArgs):
+        # print(
+        #     f"User '{commandArgs.user.name}' in '{commandArgs.room.name}' sent command '{commandArgs.name}' - args: '{commandArgs.parameter}'"
+        # )
+
+        validArgs = False
+        parameter = commandArgs.parameter
+        enable = False
+        emptyArgs = False
+
+        if commandArgs.user.mod or commandArgs.user.name == commandArgs.room.name:
+            if parameter == "":
+                emptyArgs = True
+                validArgs = True
+            elif parameter in ["1", "on", "true"]:
+                validArgs = True
+                enable = True
+            elif parameter in ["0", "off", "false"]:
+                validArgs = True
+                enable = False
+
+            if validArgs:
+                if emptyArgs:
+                    await commandArgs.reply(
+                        f"Chat mirroring is currently {'enabled' if self.mirrorEnabled else 'disabled'}"
+                    )
+                else:
+                    self.mirrorEnabled = enable
+                    await commandArgs.reply(
+                        f"Chat mirroring is now {'enabled' if self.mirrorEnabled else 'disabled'}"
+                    )
+            else:
+                await commandArgs.reply(
+                    f"Usage: {commandArgs.name}' 0 | off | false | 1 | on | true"
+                )
+        else:
+            print(
+                f"User '{commandArgs.user.name}' is not a moderator in {commandArgs.room.name} ({commandArgs.user.user_type})"
+            )
