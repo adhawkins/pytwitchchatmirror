@@ -27,18 +27,25 @@ class Config:
     def addUser(self, userID, login, accessToken, refreshToken):
         currentUser = self.findUser(userID)
 
-        newUser = {
-            "userID": userID,
-            "login": login,
-            "accessToken": accessToken,
-            "refreshToken": refreshToken,
-            "channels": [],
-        }
-
         if currentUser == None:
+            newUser = {
+                "userID": userID,
+                "login": login,
+                "accessToken": accessToken,
+                "refreshToken": refreshToken,
+                "channels": [],
+            }
+
             self.config.append(newUser)
         else:
-            self.config[currentUser] = newUser
+            user = self.config[currentUser]
+
+            user["userID"] = userID
+            user["login"] = login
+            user["accessToken"] = accessToken
+            user["refreshToken"] = refreshToken
+
+            self.config[currentUser] = user
 
         self.saveConfig()
 
