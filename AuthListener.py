@@ -31,7 +31,7 @@ class AuthListener:
             "<h1>ADH Chat Mirror login</h1>"
             "<p>"
             "To authorise your bot to read and post chat, visit the following link: "
-            f'<a href="https://id.twitch.tv/oauth2/authorize?client_id={self.clientID}&redirect_uri=https://twitch-chat.gently.org.uk/auth&response_type=code&state=xyz123&scope=chat%3Aedit%20chat%3Aread">Click here</a>'
+            f'<a href="https://id.twitch.tv/oauth2/authorize?client_id={self.clientID}&redirect_uri=https://twitch-chat.gently.org.uk/auth&response_type=code&state=xyz123&scope=chat%3Aedit%20chat%3Aread%20user%3Aread%3Afollows">Click here</a>'
             "<p>"
         )
 

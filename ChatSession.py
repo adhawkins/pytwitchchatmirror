@@ -1,4 +1,5 @@
 from twitchAPI.twitch import Twitch, TwitchUserFollow
+from twitchAPI.helper import first
 from twitchAPI.types import AuthScope
 from twitchAPI.chat import Chat, ChatEvent
 
@@ -6,7 +7,7 @@ from pprint import pprint
 
 
 class ChatSession:
-    SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
+    SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT, AuthScope.USER_READ_FOLLOWS]
 
     def __init__(
         self,
@@ -53,6 +54,15 @@ class ChatSession:
         await self.twitch.close()
 
     async def onReady(self, readyEvent):
+        for channel in self.channels:
+            channelUser = await first(self.twitch.get_users(logins=f"{channel}"))
+            followedChannels = await self.twitch.get_followed_channels(
+                self.userID, broadcaster_id=channelUser.id
+            )
+
+            if not followedChannels.data:
+                print(f"User {self.userName} ({self.userID}) does not follow {channel}")
+
         await self.chat.join_room(self.channels)
 
     async def onMessage(self, messageEvent):
