@@ -50,7 +50,7 @@ class ChatSession:
 
     async def shutdown(self):
         self.chat.stop()
-        self.twitch.close()
+        await self.twitch.close()
 
     async def onReady(self, readyEvent):
         await self.chat.join_room(self.channels)
