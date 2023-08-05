@@ -17,7 +17,7 @@ class Config:
 
     def saveConfig(self):
         with open(Config.FILENAME, "w") as f:
-            json.dump(self.config, f)
+            json.dump(self.config, f, indent=2)
 
     def findUser(self, userID):
         return next(
