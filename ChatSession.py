@@ -72,7 +72,7 @@ class ChatSession:
                     if channel != messageEvent.room.name:
                         await self.chat.send_message(
                             channel,
-                            f"{messageEvent.user.name} in {messageEvent.room.name}: {messageEvent.text}",
+                            f"[{messageEvent.room.name}]{messageEvent.user.name}: {messageEvent.text}",
                         )
 
     async def onJoin(self, joinEvent):
