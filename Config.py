@@ -34,6 +34,8 @@ class Config:
                 "accessToken": accessToken,
                 "refreshToken": refreshToken,
                 "channels": [],
+                "operators": [],
+                "ignoreUsers": [],
             }
 
             self.config.append(newUser)

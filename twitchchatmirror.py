@@ -45,6 +45,8 @@ class TwitchApp:
                 user["accessToken"],
                 user["refreshToken"],
                 user["channels"],
+                user["operators"],
+                user["ignoreUsers"],
                 self.userAuthRefreshed,
             )
 

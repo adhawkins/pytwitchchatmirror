@@ -18,6 +18,8 @@ class ChatSession:
         accessToken,
         refreshToken,
         channels,
+        operators,
+        ignoreUsers,
         refreshCallback,
     ):
         self.appID = appID
@@ -27,6 +29,8 @@ class ChatSession:
         self.accessToken = accessToken
         self.refreshToken = refreshToken
         self.channels = channels
+        self.operators = operators
+        self.ignoreUsers = ignoreUsers
         self.refreshCallback = refreshCallback
         self.mirrorEnabled = False
 
@@ -66,8 +70,15 @@ class ChatSession:
         await self.chat.join_room(self.channels)
 
     async def onMessage(self, messageEvent):
+        # print(
+        #     f"Message from '{messageEvent.user.name}' in '{messageEvent.room.name}': '{messageEvent.text}'"
+        # )
+
         if self.mirrorEnabled and not messageEvent.text.startswith("!"):
-            if messageEvent.user.name != self.userName:
+            if (
+                messageEvent.user.name != self.userName
+                and messageEvent.user.name not in self.ignoreUsers
+            ):
                 for channel in self.channels:
                     if channel != messageEvent.room.name:
                         await self.chat.send_message(
@@ -99,7 +110,10 @@ class ChatSession:
         enable = False
         emptyArgs = False
 
-        if commandArgs.user.mod or commandArgs.user.name == commandArgs.room.name:
+        if (
+            commandArgs.user.name in self.operators
+            or commandArgs.user.name == commandArgs.room.name
+        ):
             if parameter == "":
                 emptyArgs = True
                 validArgs = True
@@ -126,5 +140,5 @@ class ChatSession:
                 )
         else:
             print(
-                f"User '{commandArgs.user.name}' is not a moderator in {commandArgs.room.name} ({commandArgs.user.user_type})"
+                f"User '{commandArgs.user.name}' is not an operator in {commandArgs.room.name} ({commandArgs.user.user_type})"
             )
